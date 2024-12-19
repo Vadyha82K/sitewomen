@@ -26,6 +26,7 @@ SECRET_KEY = "django-insecure-&xurx=q#0j6q_e84nc@%@#!-6fo^c+nt^2rqew1^6uy2(tr10%
 DEBUG = True
 
 ALLOWED_HOSTS = ["127.0.0.1"]
+INTERNAL_IPS = ["127.0.0.1"]
 
 
 # Application definition
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "women.apps.WomenConfig",
     "django_extensions",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -49,6 +51,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "sitewomen.urls"
