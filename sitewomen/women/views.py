@@ -4,6 +4,8 @@ from django.http import (
     HttpResponsePermanentRedirect,
 )
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views import View
+from django.views.generic import TemplateView
 
 from .forms import AddPostForm, UploadFileForm
 from .models import Women, Category, TagPost, UploadFiles
@@ -25,6 +27,16 @@ def index(request):
         "cat_selected": 0,
     }
     return render(request, "women/index.html", context=data)
+
+
+class WomenHome(TemplateView):
+    template_name = "women/index.html"
+    extra_context = {
+        "title": "Главная страница",
+        "menu": menu,
+        "posts": Women.published.all().select_related("cat"),
+        "cat_selected": 0,
+    }
 
 
 # def handle_uploaded_file(f):
@@ -76,6 +88,22 @@ def addpage(request):
 
     data = {"menu": menu, "title": "Добавление статьи", "form": form}
     return render(request, "women/addpage.html", data)
+
+
+class AddPage(View):
+    def get(self, request):
+        form = AddPostForm()
+        data = {"menu": menu, "title": "Добавление статьи", "form": form}
+        return render(request, "women/addpage.html", data)
+
+    def post(self, request):
+        form = AddPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect("home")
+
+        data = {"menu": menu, "title": "Добавление статьи", "form": form}
+        return render(request, "women/addpage.html", data)
 
 
 def contact(request):
