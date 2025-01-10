@@ -3,37 +3,32 @@ from django.db import models
 
 
 class Post(models.Model):
-    slug = models.SlugField(
-        max_length=255, unique=True, db_index=True, verbose_name="Слаг"
-    )
-    title = models.CharField(max_length=255, verbose_name="Заголовок")
-    photo = models.ImageField(
-        upload_to="post/%Y/%m/", blank=True, verbose_name="Изображение"
-    )
-    content = models.TextField(blank=True, verbose_name="Контент")
-    is_published = models.BooleanField(default=False, verbose_name="Опубликовано")
-
-    class Meta:
-        verbose_name = "Статья"
-        verbose_name_plural = "Статьи"
+    slug = models.SlugField(max_length=255, unique=True, db_index=True)
+    title = models.CharField(max_length=255)
+    content = models.TextField(blank=True)
+    time_create = models.DateTimeField(auto_now_add=True)
+    time_update = models.DateTimeField(auto_now=True)
+    is_published = models.BooleanField(default=False)
 
 
-# --------- admin.py ------------------------
-from django.contrib import admin
-from django.utils.safestring import mark_safe
+# --------- views.py ------------------------
+from django.views.generic import DetailView
 
-# импорт from .models import Post
+# from django.shortcuts import get_object_or_404
+# from .models import Post
 
 
-# здесь продолжайте программу
-@admin.register(Post)
-class PostAdmin(admin.ModelAdmin):
-    fields = ("title", "slug", "content", "photo", "is_published")
-    list_display = ("title", "slug", "is_published", "post_photo")
-    list_display_links = ("title",)
-    list_editable = ("title", "slug", "content", "photo", "is_published")
-    save_on_top = True
+# здесь объявляйте класс представления
+class PostDetail(DetailView):
+    template_name = "post/detail_post.html"
+    context_object_name = "post"
+    slug_url_kwarg = "post_slug"
 
-    @admin.display(description="Изображение")
-    def post_photo(self, post: Post):
-        return mark_safe(f"<img src='{post.photo.url}' width=50>")
+    def get_object(self, queryset=None):
+        return get_object_or_404(Post, slug=self.slug_url_kwarg, is_published=1)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Заголовок поста"
+        context["cat_selected"] = 0
+        return context
